@@ -10,11 +10,6 @@ package app.morphe.patches.reddit.customclients.boostforreddit.http.reddit
 import app.morphe.patcher.Fingerprint
 import com.android.tools.smali.dexlib2.AccessFlags
 
-internal object InstallJrawInterceptorFingerprint : Fingerprint(
-    definingClass = "Lnet/dean/jraw/http/OkHttpAdapter;",
-    name = "newOkHttpClient",
-)
-
 // Lcom/rubenmayayo/reddit/ui/adapters/CommentViewHolder;->O(Lcom/rubenmayayo/reddit/models/reddit/CommentModel;
 internal object SetCommentBabushkaTextFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC),

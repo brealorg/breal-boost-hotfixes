@@ -14,6 +14,7 @@ import app.morphe.patches.reddit.customclients.ExtensionPatches
 import app.morphe.patches.reddit.customclients.boostforreddit.http.interceptHttpRequests
 import app.morphe.util.getReference
 import app.morphe.util.indexOfFirstInstruction
+import app.morphe.util.returnEarly
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 
@@ -28,21 +29,6 @@ val interceptImgurRequests = bytecodePatch(
     compatibleWith(*AppCompatibility.Boost)
 
     execute {
-        arrayOf(InstallImgurFreeOkHttpInterceptorFingerprint, InstallImgurPaidOkHttpInterceptorFingerprint)
-            .forEach {
-                it.method.apply {
-                    val index = indexOfFirstInstruction {
-                        val reference = getReference<MethodReference>() ?: return@indexOfFirstInstruction false
-                        reference.toString() == "Lokhttp3/OkHttpClient${'$'}Builder;-><init>()V"
-                    }
-                    addInstructions(
-                        index + 1,
-                        """
-                        invoke-static       { }, $OKHTTP_EXTENSION_CLASS_DESCRIPTOR->init()V
-                        invoke-static       { v1 }, $OKHTTP_EXTENSION_CLASS_DESCRIPTOR->installInterceptor(Lokhttp3/OkHttpClient${'$'}Builder;)Lokhttp3/OkHttpClient${'$'}Builder;
-                        """
-                    )
-                }
-            }
+        EnableImgurUndeleteFingerprint.method.returnEarly(true)
     }
 }

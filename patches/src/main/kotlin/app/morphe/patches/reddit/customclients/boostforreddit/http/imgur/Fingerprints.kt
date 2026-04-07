@@ -10,12 +10,7 @@ package app.morphe.patches.reddit.customclients.boostforreddit.http.imgur
 import app.morphe.patcher.Fingerprint
 
 
-internal object InstallImgurPaidOkHttpInterceptorFingerprint : Fingerprint(
-    definingClass = "Lbc/a;",
-    name = "d",
-)
-
-internal object InstallImgurFreeOkHttpInterceptorFingerprint : Fingerprint(
-    definingClass = "Lbc/a;",
-    name = "e",
+internal object EnableImgurUndeleteFingerprint : Fingerprint(
+    definingClass = "Lapp/morphe/extension/boost/http/imgur/ImgurUndeleteInterceptor;",
+    name = "isPatchIncluded"
 )

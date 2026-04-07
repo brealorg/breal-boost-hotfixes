@@ -47,18 +47,6 @@ val undeleteRedditPatch = bytecodePatch(
     compatibleWith(*AppCompatibility.Boost)
 
     execute {
-        InstallJrawInterceptorFingerprint.method.apply {
-            val index = indexOfFirstInstructionReversed(Opcode.INVOKE_VIRTUAL)
-            addInstructions(
-                index,
-                $$"""
-                invoke-static       { }, $$OKHTTP_EXTENSION_CLASS_DESCRIPTOR->init()V
-                invoke-static       { v0 }, $$OKHTTP_EXTENSION_CLASS_DESCRIPTOR->installInterceptor(Lokhttp3/OkHttpClient$Builder;)Lokhttp3/OkHttpClient$Builder;
-                move-result-object  v0
-                """
-            )
-        }
-
         // region Add additional field and marshaling code for ContributionModel.
         val fieldType = "Ljava/lang/String;"
         ContributionModelConstructorFingerprint.classDef.apply {
@@ -131,7 +119,6 @@ val undeleteRedditPatch = bytecodePatch(
         // endregion
 
         // region Extend emojis used for BabushkaText.
-        val babushkaText = "\$a"
         SetCommentBabushkaTextFingerprint.method.apply {
             val babushkaTextCheckGotoIndex = indexOfFirstInstruction(Opcode.GOTO)
             val gotoTarget = getInstruction<BuilderInstruction10t>(babushkaTextCheckGotoIndex).target
@@ -151,18 +138,18 @@ val undeleteRedditPatch = bytecodePatch(
             val babushkaTextLoadIndex = indexOfFirstInstructionReversed(Opcode.GOTO_16) + 1
             addInstructionsAtControlFlowLabel(
                 babushkaTextLoadIndex,
-                """
-                    invoke-virtual      {p1}, Lcom/rubenmayayo/reddit/models/reddit/ContributionModel;->$EXTRA_EMOJI_GETTER()Ljava/lang/String;
+                $$"""
+                    invoke-virtual      {p1}, Lcom/rubenmayayo/reddit/models/reddit/ContributionModel;->$$EXTRA_EMOJI_GETTER()Ljava/lang/String;
                     move-result-object  v2
                     invoke-static       {v2}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
                     move-result         v0
                     if-nez              v0, :continue
                     iget-object         v0, p0, Lcom/rubenmayayo/reddit/ui/adapters/CommentViewHolder;->distinguishedTv:Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;
-                    new-instance        v1, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText$babushkaText;
-                    invoke-direct       {v1, v2}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText$babushkaText;-><init>(Ljava/lang/String;)V
-                    invoke-virtual      {v1}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText$babushkaText;->r()Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText;
+                    new-instance        v1, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a$a;
+                    invoke-direct       {v1, v2}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a$a;-><init>(Ljava/lang/String;)V
+                    invoke-virtual      {v1}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a$a;->r()Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a;
                     move-result-object  v1
-                    invoke-virtual      {v0, v1}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;->m(Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText;)V
+                    invoke-virtual      {v0, v1}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;->m(Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a;)V
                     :continue
                     nop
                     """
@@ -176,20 +163,20 @@ val undeleteRedditPatch = bytecodePatch(
 
             addInstructionsAtControlFlowLabel(
                 babushkaTextLoadIndex,
-                """
-                    invoke-virtual      {p1}, Lcom/rubenmayayo/reddit/models/reddit/ContributionModel;->$EXTRA_EMOJI_GETTER()Ljava/lang/String;
+                $$"""
+                    invoke-virtual      {p1}, Lcom/rubenmayayo/reddit/models/reddit/ContributionModel;->$$EXTRA_EMOJI_GETTER()Ljava/lang/String;
                     move-result-object  v0
                     invoke-static       {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
                     move-result         v4
                     if-nez              v4, :continue
-                    iget-object         v4, p0, $definingClass->infoTop:Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;
-                    iget-object         v5, p0, $definingClass->l:Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText;
-                    invoke-virtual      {v4, v5}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;->m(Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText;)V
-                    new-instance        v5, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText$babushkaText;
-                    invoke-direct       {v5, v0}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText$babushkaText;-><init>(Ljava/lang/String;)V
-                    invoke-virtual      {v5}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText$babushkaText;->r()Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText;
+                    iget-object         v4, p0, $$definingClass->infoTop:Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;
+                    iget-object         v5, p0, $$definingClass->l:Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a;
+                    invoke-virtual      {v4, v5}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;->m(Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a;)V
+                    new-instance        v5, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a$a;
+                    invoke-direct       {v5, v0}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a$a;-><init>(Ljava/lang/String;)V
+                    invoke-virtual      {v5}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a$a;->r()Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a;
                     move-result-object  v5
-                    invoke-virtual      {v4, v5}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;->m(Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$babushkaText;)V
+                    invoke-virtual      {v4, v5}, Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText;->m(Lcom/rubenmayayo/reddit/ui/customviews/BabushkaText$a;)V
                     :continue
                     nop
                     """

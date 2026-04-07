@@ -29,16 +29,22 @@ import app.morphe.extension.boost.http.AutoSavingCache;
 import app.morphe.extension.boost.http.HttpUtils;
 import app.morphe.extension.boost.http.wayback.WaybackMachine;
 import app.morphe.extension.boost.http.wayback.WaybackResponse;
-import okhttp3.Interceptor;
+import app.morphe.extension.shared.requests.PatchedditInterceptor;
 import okhttp3.Response;
 import okhttp3.Request;
 
-public class ImgurUndeleteInterceptor implements Interceptor {
+public class ImgurUndeleteInterceptor extends PatchedditInterceptor {
     private static final AutoSavingCache imgurCache = new AutoSavingCache("Imgur", 100);
+
+    @Override
+    public boolean isPatchIncluded() {
+        // To be overridden by patch.
+        return false;
+    }
 
     @NotNull
     @Override
-    public Response intercept(Chain chain) throws IOException {
+    public Response doIntercept(Chain chain) throws IOException {
         Request request = chain.request();
         String host = request.url().host();
 
