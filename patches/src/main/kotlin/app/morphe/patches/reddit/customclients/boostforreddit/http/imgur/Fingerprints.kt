@@ -10,12 +10,12 @@ package app.morphe.patches.reddit.customclients.boostforreddit.http.imgur
 import app.morphe.patcher.Fingerprint
 
 
-internal val installImgurPaidOkHttpInterceptorFingerprint = Fingerprint(
+internal object InstallImgurPaidOkHttpInterceptorFingerprint : Fingerprint(
     definingClass = "Lbc/a;",
     name = "d",
 )
 
-internal val installImgurFreeOkHttpInterceptorFingerprint = Fingerprint(
+internal object InstallImgurFreeOkHttpInterceptorFingerprint : Fingerprint(
     definingClass = "Lbc/a;",
     name = "e",
 )

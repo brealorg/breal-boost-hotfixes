@@ -9,26 +9,26 @@ package app.morphe.patches.reddit.customclients.boostforreddit.http.imgur
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
-import app.morphe.patches.reddit.customclients.boostforreddit.BoostCompatible
-import app.morphe.patches.reddit.customclients.boostforreddit.misc.extension.sharedExtensionPatch
+import app.morphe.patches.reddit.customclients.AppCompatibility
+import app.morphe.patches.reddit.customclients.ExtensionPatches
 import app.morphe.patches.reddit.customclients.boostforreddit.http.interceptHttpRequests
 import app.morphe.util.getReference
 import app.morphe.util.indexOfFirstInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 
-internal const val OKHTTP_EXTENSION_CLASS_DESCRIPTOR = "Lapp/morphe/extension/boostforreddit/http/OkHttpRequestHook;"
+internal const val OKHTTP_EXTENSION_CLASS_DESCRIPTOR = "Lapp/morphe/extension/boost/http/OkHttpRequestHook;"
 
 @Suppress("unused")
 val interceptImgurRequests = bytecodePatch(
     name = "Automatically undelete Imgur images",
     default = true
 ) {
-    dependsOn(sharedExtensionPatch, interceptHttpRequests)
-    compatibleWith(*BoostCompatible)
+    dependsOn(ExtensionPatches.Boost, interceptHttpRequests)
+    compatibleWith(*AppCompatibility.Boost)
 
     execute {
-        arrayOf(installImgurFreeOkHttpInterceptorFingerprint, installImgurPaidOkHttpInterceptorFingerprint)
+        arrayOf(InstallImgurFreeOkHttpInterceptorFingerprint, InstallImgurPaidOkHttpInterceptorFingerprint)
             .forEach {
                 it.method.apply {
                     val index = indexOfFirstInstruction {

@@ -9,8 +9,8 @@ package app.morphe.patches.reddit.customclients.continuum.api
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.resourcePatch
-import app.morphe.patches.reddit.customclients.continuum.ContinuumCompatible
-import app.morphe.patches.reddit.customclients.continuum.misc.extension.sharedExtensionPatch
+import app.morphe.patches.reddit.customclients.AppCompatibility
+import app.morphe.patches.reddit.customclients.ExtensionPatches
 import app.morphe.patches.reddit.customclients.spoofClientPatch
 import app.morphe.util.getNode
 import app.morphe.util.replaceStringMatchesWithFunc
@@ -33,7 +33,7 @@ val spoofClientPatch = spoofClientPatch(
     val userAgent by userAgentOption
 
     dependsOn(
-        sharedExtensionPatch,
+        ExtensionPatches.Continuum,
         resourcePatch(
             default = false
         ) {
@@ -71,24 +71,24 @@ val spoofClientPatch = spoofClientPatch(
             }
         }
     )
-    compatibleWith(*ContinuumCompatible)
+    compatibleWith(*AppCompatibility.Continuum)
     execute {
-        getDefaultClientIdFingerprint.method.returnEarly(clientId!!)
-        getDefaultRedirectUriFingerprint.method.returnEarly(redirectUri!!)
-        getDefaultUserAgentFingerprint.method.returnEarly(userAgent!!)
+        GetDefaultClientIdFingerprint.method.returnEarly(clientId!!)
+        GetDefaultRedirectUriFingerprint.method.returnEarly(redirectUri!!)
+        GetDefaultUserAgentFingerprint.method.returnEarly(userAgent!!)
 
         userAgentFingerprint(packageMetadata.versionName).matchAll().forEach { match ->
             match.replaceStringMatchesWithFunc(GET_USER_AGENT_METHOD)
         }
 
-        redirectUriFingerprint.matchAll().forEach { match ->
+        RedirectUriFingerprint.matchAll().forEach { match ->
             match.replaceStringMatchesWithFunc(GET_REDIRECT_URI_METHOD)
         }
 
-        apiKeysOnCreatePreferencesFingerprint.method.apply {
-            val inst = apiKeysOnCreatePreferencesFingerprint.instructionMatches.first().instruction
+        ApiKeysOnCreatePreferencesFingerprint.method.apply {
+            val inst = ApiKeysOnCreatePreferencesFingerprint.instructionMatches.first().instruction
             val register = (inst as FiveRegisterInstruction).registerC
-            val index = apiKeysOnCreatePreferencesFingerprint.instructionMatches.last().index
+            val index = ApiKeysOnCreatePreferencesFingerprint.instructionMatches.last().index
             addInstructions(
                 index,
                 """

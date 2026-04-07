@@ -16,17 +16,17 @@ import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 
-internal val getDefaultUserAgentFingerprint = Fingerprint(
+internal object GetDefaultUserAgentFingerprint : Fingerprint(
     definingClass = EXTENSION_CLASS_NAME,
     name = "getDefaultUserAgent"
 )
 
-internal val getDefaultRedirectUriFingerprint = Fingerprint(
+internal object GetDefaultRedirectUriFingerprint : Fingerprint(
     definingClass = EXTENSION_CLASS_NAME,
     name = "getDefaultRedirectUri"
 )
 
-internal val getDefaultClientIdFingerprint = Fingerprint(
+internal object GetDefaultClientIdFingerprint : Fingerprint(
     definingClass = EXTENSION_CLASS_NAME,
     name = "getDefaultClientId"
 )
@@ -40,12 +40,12 @@ internal fun userAgentFingerprints(versionName: String) = listOf(
     )
 )
 
-internal val redirectUriFingerprint = Fingerprint(
+internal object RedirectUriFingerprint : Fingerprint(
     definingClass = "Lme/edgan/redditslide/",
     strings = listOf("http://www.ccrama.me"),
 )
 
-internal val tutorialFingerprint = Fingerprint(
+internal object TutorialFingerprint : Fingerprint(
     definingClass = "Lme/edgan/redditslide/Activities/Tutorial\$Personalize;",
     filters = listOf(
         methodCall(smali = "Landroid/widget/ImageButton;->setLayoutParams(Landroid/view/ViewGroup\$LayoutParams;)V"),
@@ -55,7 +55,7 @@ internal val tutorialFingerprint = Fingerprint(
     )
 )
 
-internal val tutorialSaveFingerprint = Fingerprint(
+internal object TutorialSaveFingerprint : Fingerprint(
     definingClass = "Lme/edgan/redditslide/Activities/Tutorial\$Personalize;",
     strings = listOf("redditClientOverride"),
     filters = listOf(
@@ -67,7 +67,7 @@ internal val tutorialSaveFingerprint = Fingerprint(
     )
 )
 
-internal val showClientIdDialogSetupLayoutFingerprint = Fingerprint(
+internal object ShowClientIdDialogSetupLayoutFingerprint : Fingerprint(
     definingClass = "Lme/edgan/redditslide/ui/settings/SettingsGeneralFragment;",
     name = "showClientIDDialog",
     filters = listOf(
@@ -78,7 +78,7 @@ internal val showClientIdDialogSetupLayoutFingerprint = Fingerprint(
     )
 )
 
-internal val loadClientIdFingerprint = Fingerprint(
+internal object LoadClientIdFingerprint : Fingerprint(
     definingClass = "Lme/edgan/redditslide/",
     filters = listOf(
         string("redditClientOverride"),
@@ -92,7 +92,7 @@ internal val loadClientIdFingerprint = Fingerprint(
 )
 
 // Anonymous lambda (onClick handler) inside showClientIDDialog that saves the client ID override.
-internal val showClientIdDialogSaveFingerprint = Fingerprint(
+internal object ShowClientIdDialogSaveFingerprint : Fingerprint(
     definingClass = "Lme/edgan/redditslide/ui/settings/SettingsGeneralFragment;",
     accessFlags = listOf(AccessFlags.PRIVATE, AccessFlags.SYNTHETIC),
     filters = listOf(
@@ -102,12 +102,12 @@ internal val showClientIdDialogSaveFingerprint = Fingerprint(
     )
 )
 
-internal val jrawOnUserChallengeFingerprint = Fingerprint(
+internal object JrawOnUserChallengeFingerprint : Fingerprint(
     definingClass = "Lnet/dean/jraw/http/oauth/OAuthHelper;",
     name = "onUserChallenge"
 )
 
-internal val jrawNewUrlFingerprint = Fingerprint(
+internal object JrawNewUrlFingerprint : Fingerprint(
     definingClass = "Lnet/dean/jraw/util/JrawUtils;",
     name = "newUrl"
 )

@@ -11,8 +11,8 @@ import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
-import app.morphe.patches.reddit.customclients.slide.SlideCompatible
-import app.morphe.patches.reddit.customclients.slide.misc.extension.sharedExtensionPatch
+import app.morphe.patches.reddit.customclients.AppCompatibility
+import app.morphe.patches.reddit.customclients.ExtensionPatches
 import app.morphe.patches.reddit.customclients.spoofClientPatch
 import app.morphe.util.getReference
 import app.morphe.util.indexOfFirstInstructionOrThrow
@@ -39,9 +39,9 @@ val spoofClientPatch = spoofClientPatch(
     val userAgent by userAgentOption
 
     dependsOn(
-        sharedExtensionPatch
+        ExtensionPatches.Slide
     )
-    compatibleWith(*SlideCompatible)
+    compatibleWith(*AppCompatibility.Slide)
 
     execute {
         userAgentFingerprints(packageMetadata.versionName).forEach { fingerprint ->
@@ -50,12 +50,12 @@ val spoofClientPatch = spoofClientPatch(
             }
         }
 
-        redirectUriFingerprint.matchAll().forEach { match ->
+        RedirectUriFingerprint.matchAll().forEach { match ->
             match.replaceStringMatchesWithFunc(GET_REDIRECT_URI_METHOD)
         }
 
-        tutorialFingerprint.method.apply {
-            val index = tutorialFingerprint.instructionMatches.last().index
+        TutorialFingerprint.method.apply {
+            val index = TutorialFingerprint.instructionMatches.last().index
             val register = (getInstruction(index) as FiveRegisterInstruction).registerC
             addInstruction(
                 index + 1,
@@ -65,8 +65,8 @@ val spoofClientPatch = spoofClientPatch(
             )
         }
 
-        tutorialSaveFingerprint.method.apply {
-            val index = tutorialSaveFingerprint.instructionMatches.first().index
+        TutorialSaveFingerprint.method.apply {
+            val index = TutorialSaveFingerprint.instructionMatches.first().index
             addInstruction(
                 index,
                 """
@@ -75,9 +75,9 @@ val spoofClientPatch = spoofClientPatch(
             )
         }
 
-        showClientIdDialogSetupLayoutFingerprint.method.apply {
-            val index = showClientIdDialogSetupLayoutFingerprint.instructionMatches.first().index
-            val inst = showClientIdDialogSetupLayoutFingerprint.instructionMatches.first().instruction
+        ShowClientIdDialogSetupLayoutFingerprint.method.apply {
+            val index = ShowClientIdDialogSetupLayoutFingerprint.instructionMatches.first().index
+            val inst = ShowClientIdDialogSetupLayoutFingerprint.instructionMatches.first().instruction
             val register = (inst as FiveRegisterInstruction).registerC
             addInstruction(
                 index + 1,
@@ -87,7 +87,7 @@ val spoofClientPatch = spoofClientPatch(
             )
         }
 
-        showClientIdDialogSaveFingerprint.method.apply {
+        ShowClientIdDialogSaveFingerprint.method.apply {
             addInstruction(
                 0,
                 """
@@ -96,7 +96,7 @@ val spoofClientPatch = spoofClientPatch(
             )
         }
 
-        jrawNewUrlFingerprint.method.apply {
+        JrawNewUrlFingerprint.method.apply {
             val index = indexOfFirstInstructionOrThrow {
                 opcode == Opcode.NEW_INSTANCE && getReference<TypeReference>()?.type == "Ljava/net/URL;"
             }
@@ -110,7 +110,7 @@ val spoofClientPatch = spoofClientPatch(
             )
         }
 
-        jrawOnUserChallengeFingerprint.method.apply {
+        JrawOnUserChallengeFingerprint.method.apply {
             addInstructions(
                 0,
                 """
@@ -120,7 +120,7 @@ val spoofClientPatch = spoofClientPatch(
             )
         }
 
-        loadClientIdFingerprint.matchAll().forEach { match ->
+        LoadClientIdFingerprint.matchAll().forEach { match ->
             match.method.apply {
                 val index = match.instructionMatches.last().index
                 replaceInstruction(
@@ -132,8 +132,8 @@ val spoofClientPatch = spoofClientPatch(
             }
         }
 
-        getDefaultClientIdFingerprint.method.returnEarly(clientId!!)
-        getDefaultRedirectUriFingerprint.method.returnEarly(redirectUri!!)
-        getDefaultUserAgentFingerprint.method.returnEarly(userAgent!!)
+        GetDefaultClientIdFingerprint.method.returnEarly(clientId!!)
+        GetDefaultRedirectUriFingerprint.method.returnEarly(redirectUri!!)
+        GetDefaultUserAgentFingerprint.method.returnEarly(userAgent!!)
     }
 }

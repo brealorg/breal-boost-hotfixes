@@ -23,7 +23,7 @@ import com.android.tools.smali.dexlib2.immutable.ImmutableMethod
 import com.android.tools.smali.dexlib2.immutable.ImmutableMethodParameter
 
 fun modifyWebViewPatch(
-    extensionPatch: Array<Patch<*>>,
+    extensionPatch: Patch<*>,
     compatible: Array<Compatibility>
 ) = bytecodePatch(
     name = "Modify login WebView",
@@ -33,7 +33,7 @@ fun modifyWebViewPatch(
     compatibleWith(*compatible)
 
     dependsOn(
-        *extensionPatch,
+        extensionPatch,
     )
 
     execute {

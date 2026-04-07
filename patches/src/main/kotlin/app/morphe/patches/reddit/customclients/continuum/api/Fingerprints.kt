@@ -11,17 +11,17 @@ import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.OpcodesFilter
 import com.android.tools.smali.dexlib2.Opcode
 
-internal val getDefaultUserAgentFingerprint = Fingerprint(
+internal object GetDefaultUserAgentFingerprint : Fingerprint(
     definingClass = EXTENSION_CLASS_NAME,
     name = "getDefaultUserAgent"
 )
 
-internal val getDefaultRedirectUriFingerprint = Fingerprint(
+internal object GetDefaultRedirectUriFingerprint : Fingerprint(
     definingClass = EXTENSION_CLASS_NAME,
     name = "getDefaultRedirectUri"
 )
 
-internal val getDefaultClientIdFingerprint = Fingerprint(
+internal object GetDefaultClientIdFingerprint : Fingerprint(
     definingClass = EXTENSION_CLASS_NAME,
     name = "getDefaultClientId"
 )
@@ -30,12 +30,12 @@ internal fun userAgentFingerprint(versionName: String) = Fingerprint(
     strings = listOf("android:org.cygnusx1.continuum:$versionName (by /u/edgan)")
 )
 
-internal val redirectUriFingerprint = Fingerprint(
+internal object RedirectUriFingerprint : Fingerprint(
     definingClass = "Lml/docilealligator",
     strings = listOf("continuum://localhost")
 )
 
-internal val apiKeysOnCreatePreferencesFingerprint = Fingerprint(
+internal object ApiKeysOnCreatePreferencesFingerprint : Fingerprint(
     definingClass = "Lml/docilealligator/infinityforreddit/settings/APIKeysPreferenceFragment",
     name = "onCreatePreferences",
     filters = OpcodesFilter.opcodesToFilters(
