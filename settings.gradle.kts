@@ -1,4 +1,4 @@
-rootProject.name = "patcheddit"
+rootProject.name = "patcheddit-boost-audio-hotfix"
 
 pluginManagement {
     repositories {
