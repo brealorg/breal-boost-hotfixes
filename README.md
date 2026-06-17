@@ -52,3 +52,15 @@ Patch your own clean Boost APK. Do not install random pre-patched APKs from stra
 ## Upstream PRs
 
 These fixes have been submitted upstream and should be considered temporary until merged into Patcheddit.
+
+## Known issue
+
+The experimental inline Giphy comment preview patch has been removed from the public bundle because it caused runtime crashes when opening comment threads in Boost for Reddit 1.12.12.
+
+For a stable Boost setup, avoid enabling comment-modifying patches such as inline Giphy previews, undelete/archive/Arctic Shift comment patches, or similar CommentViewHolder hooks unless testing them separately.
+
+Current safe patch set:
+- Fix audio missing in downloads
+- Fix slow Giphy loading
+- Spoof client, if needed
+- Modify login WebView, if needed
