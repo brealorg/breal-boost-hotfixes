@@ -26,7 +26,7 @@ private const val INLINE_GIPHY_EXTENSION_DESCRIPTOR =
 val inlineGiphyCommentPreviewPatch = bytecodePatch(
     name = "Show inline Giphy previews in comments",
     description = "Adds inline animated Giphy previews below Boost comment text for Reddit Giphy markdown and Giphy links.",
-    default = true
+    default = false
 ) {
     dependsOn(sharedExtensionPatch)
     compatibleWith(*BoostCompatible)
