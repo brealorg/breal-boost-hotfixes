@@ -33,13 +33,6 @@ val inlineGiphyCommentPreviewPatch = bytecodePatch(
 
     execute {
         commentViewHolderBindFingerprint.method.apply {
-            addInstructions(
-                0,
-                """
-                    invoke-static {p1}, $INLINE_GIPHY_EXTENSION_DESCRIPTOR->cleanCommentHtml(Ljava/lang/Object;)V
-                    """
-            )
-
             val returnIndices = implementation!!.instructions.withIndex()
                 .filter { (_, instruction) -> instruction.opcode == Opcode.RETURN_VOID }
                 .map { (index, _) -> index }
