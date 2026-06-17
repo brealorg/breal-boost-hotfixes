@@ -1,4 +1,4 @@
-rootProject.name = "patcheddit-boost-audio-hotfix"
+rootProject.name = "breal-boost-hotfixes"
 
 pluginManagement {
     repositories {

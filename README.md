@@ -1,6 +1,6 @@
-# Unofficial Boost hotfix source for Patcheddit / Morphe
+# Breal Boost Hotfixes
 
-This repository is a temporary unofficial hotfix source for Boost for Reddit patches while upstream Patcheddit PRs are pending review.
+This repository is a temporary unofficial Boost for Reddit hotfix source for Morphe. It is derived from Patcheddit while selected upstream fixes are pending review.
 
 It is not intended to replace Patcheddit.
 
@@ -43,9 +43,9 @@ Download patches-1.4.0.mpp from the latest release and import it locally in Morp
 
 ## Important
 
-Morphe may show both the official Patcheddit source and this hotfix source as "Patcheddit".
+Morphe should show this source as "Breal Boost Hotfixes".
 
-To avoid selecting the wrong source, temporarily remove or disable the official Patcheddit source before patching.
+This source is intended only for temporary Boost hotfix testing.
 
 Patch your own clean Boost APK. Do not install random pre-patched APKs from strangers.
 
