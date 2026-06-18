@@ -100,8 +100,8 @@ public final class InlineGiphyCommentPreview {
             container.addView(imageView, imageParams);
 
             TextView label = new TextView(context);
-            label.setText("Open Giphy");
-            label.setTextSize(11f);
+            label.setText("Source: " + sourceUrl);
+            label.setTextSize(10f);
             label.setAlpha(0.65f);
             label.setSingleLine(true);
 
@@ -110,7 +110,7 @@ public final class InlineGiphyCommentPreview {
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
 
-            View.OnClickListener previewClickListener = new View.OnClickListener() {
+            View.OnClickListener sourceClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     try {
@@ -122,16 +122,14 @@ public final class InlineGiphyCommentPreview {
                 }
             };
 
-            container.setClickable(true);
-            container.setFocusable(true);
-            imageView.setClickable(true);
-            imageView.setFocusable(true);
+            container.setClickable(false);
+            container.setFocusable(false);
+            imageView.setClickable(false);
+            imageView.setFocusable(false);
             label.setClickable(true);
             label.setFocusable(true);
 
-            container.setOnClickListener(previewClickListener);
-            imageView.setOnClickListener(previewClickListener);
-            label.setOnClickListener(previewClickListener);
+            label.setOnClickListener(sourceClickListener);
 
             if (!insertBelowCommentText(holder, (ViewGroup) itemView, container)) return;
             loadWithGlide(context, glideRequestManager, gifUrl, imageView);
