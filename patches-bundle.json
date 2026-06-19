@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-06-19T07:07:52Z",
+  "created_at": "2026-06-19T00:00:00",
   "description": "Unofficial safe hotfix source for Boost for Reddit. Derived from Patcheddit. Includes v.redd.it video sharing/download audio fix, faster Giphy loading via direct media.giphy.com MP4 fallback, restored fixed inline Giphy previews in comments, fixed inline preview layout state reuse so comment action bars do not move after scrolling/rebinding, improved inline preview layout/collapse behavior, inline previews for direct GIF links such as i.redd.it/*.gif, and completed download notifications on a separate default-importance channel while progress notifications remain low-priority. Attribution notices updated.",
   "download_url": "https://github.com/brealorg/breal-boost-hotfixes/releases/download/boost-hotfix-15/patches-1.4.0.mpp",
   "signature_download_url": "",
