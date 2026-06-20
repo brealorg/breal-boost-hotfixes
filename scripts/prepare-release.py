@@ -93,58 +93,45 @@ def set_readme_sha(text: str, sha: str) -> str:
     return set_readme_heading_value(text, "SHA256:", sha)
 
 
-def update_description(description: str, tag: str, changelog_lines: list[str]) -> str:
+def update_description(version: str, tag: str, changelog_lines: list[str]) -> str:
     release_number = tag.split("-")[-1]
-    lines = description.splitlines()
 
-    if lines:
-        if lines[0].startswith("Boost hotfix bundle "):
-            lines[0] = f"Boost hotfix bundle {release_number}"
-        else:
-            lines.insert(0, f"Boost hotfix bundle {release_number}")
-            lines.insert(1, "")
-    else:
-        lines = [
-            f"Boost hotfix bundle {release_number}",
-            "",
-            "Breal Morphe patch source.",
-            "",
-            "Use this as a Morphe patch source only. Clean APKs must be supplied separately:",
-            "- Boost for Reddit: 1.12.12",
-            "- Imgur: 7.33.0.0",
-            "",
-            "Boost fixes:",
-            "",
-            "Imgur compatibility is also included in this source.",
-        ]
-
-    try:
-        boost_index = next(i for i, line in enumerate(lines) if line.strip() == "Boost fixes:")
-    except StopIteration:
-        lines.extend(["", "Boost fixes:"])
-        boost_index = len(lines) - 1
-
-    insert_at = len(lines)
-    for i in range(boost_index + 1, len(lines)):
-        if lines[i].strip() == "":
-            insert_at = i
-            break
-
-    existing = {line.strip() for line in lines}
-    bullets_to_add: list[str] = []
+    latest_lines: list[str] = []
+    seen: set[str] = set()
 
     for item in changelog_lines:
         normalized = normalize_changelog_line(item)
-        if not normalized:
+        if not normalized or normalized in seen:
             continue
 
-        bullet = f"- {normalized}"
-        if bullet not in existing:
-            bullets_to_add.append(bullet)
-            existing.add(bullet)
+        latest_lines.append(f"- {normalized}")
+        seen.add(normalized)
 
-    if bullets_to_add:
-        lines[insert_at:insert_at] = bullets_to_add
+    if not latest_lines:
+        latest_lines.append("- Metadata-only release.")
+
+    previous_fixes = [
+        "- Boost for Reddit 1.12.12: v.redd.it download/share audio, faster Giphy loading, inline Giphy/direct GIF previews, completed download notifications, and native Reddit comment video-player links",
+        "- Imgur 7.33.0.0: selected media file sharing and selected-media URL sharing",
+    ]
+
+    clean_apks = [
+        "- Boost for Reddit: 1.12.12",
+        "- Imgur: 7.33.0.0",
+    ]
+
+    lines = [
+        f"Morphe patch bundle {release_number}",
+        "",
+        f"Latest in {version}:",
+        *latest_lines,
+        "",
+        "Also includes previous fixes:",
+        *previous_fixes,
+        "",
+        "Clean APKs must be supplied separately:",
+        *clean_apks,
+    ]
 
     return "\n".join(lines).rstrip() + "\n"
 
@@ -158,7 +145,7 @@ def update_bundle_json(path: Path, version: str, tag: str, changelog_lines: list
     data["download_url"] = (
         f"https://github.com/brealorg/breal-morphe-patches/releases/download/{tag}/{mpp_name}"
     )
-    data["description"] = update_description(data.get("description", ""), tag, changelog_lines)
+    data["description"] = update_description(version, tag, changelog_lines)
 
     write(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
@@ -243,7 +230,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Prepare Morphe patch bundle release metadata and artifact.")
     parser.add_argument("--version", required=True, help="New release version, e.g. 1.4.23")
     parser.add_argument("--tag", help="Release tag. Defaults to morphe-patches-<patch version>.")
-    parser.add_argument("--changelog", action="append", default=[], help="Changelog line to add under Boost fixes. Can be repeated.")
+    parser.add_argument("--changelog", action="append", default=[], help="Release-note line to add under Latest in <version>. Can be repeated.")
     parser.add_argument("--marker", action="append", default=[], help="Marker to require in extensions/boostforreddit.mpe. Can be repeated.")
     parser.add_argument("--stale", action="append", default=[], help="Old value that must not remain in release metadata. Can be repeated.")
     parser.add_argument("--allow-empty-changelog", action="store_true", help="Allow release without adding a changelog line.")
