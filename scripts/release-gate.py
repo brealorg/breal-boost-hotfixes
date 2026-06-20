@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import zipfile
+from pathlib import Path
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def parse_gradle_version(path: Path) -> str:
+    text = read(path)
+    match = re.search(r"(?m)^\s*version\s*=\s*([^\s#]+)\s*$", text)
+    if not match:
+        raise SystemExit("Could not find version = ... in gradle.properties")
+    return match.group(1)
+
+
+def default_tag_for(version: str) -> str:
+    release_number = version.split(".")[-1]
+    return f"morphe-patches-{release_number}"
+
+
+def read_readme_sha(readme: str) -> str | None:
+    match = re.search(r"(?ms)^SHA256:\s*`?([0-9a-f]{64})`?", readme)
+    if match:
+        return match.group(1)
+    return None
+
+
+def git_staged_files() -> list[str]:
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--cached", "--name-only"],
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+    except FileNotFoundError:
+        return []
+
+    if result.returncode != 0:
+        return []
+
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Validate a Morphe patch bundle release before publishing.")
+    parser.add_argument("--version", help="Expected bundle version, e.g. 1.4.22. Defaults to gradle.properties.")
+    parser.add_argument("--tag", help="Expected release tag. Defaults to morphe-patches-<patch version>.")
+    parser.add_argument("--mpp", help="Path to built .mpp. Defaults to patches/build/libs/patches-<version>.mpp.")
+    parser.add_argument("--require-description", action="append", default=[], help="Text that must exist in patches-bundle.json description.")
+    parser.add_argument("--marker", action="append", default=[], help="Binary/text marker that must exist in extensions/boostforreddit.mpe.")
+    parser.add_argument("--stale", action="append", default=[], help="Old value that must not exist in release metadata files.")
+    parser.add_argument("--skip-staged-check", action="store_true", help="Do not check for staged build artifacts.")
+    args = parser.parse_args()
+
+    root = Path.cwd()
+
+    gradle_path = root / "gradle.properties"
+    bundle_path = root / "patches-bundle.json"
+    readme_path = root / "README.md"
+
+    errors: list[str] = []
+
+    def req(condition: bool, message: str) -> None:
+        if not condition:
+            errors.append(message)
+
+    version = args.version or parse_gradle_version(gradle_path)
+    tag = args.tag or default_tag_for(version)
+    mpp_name = f"patches-{version}.mpp"
+    mpp_path = Path(args.mpp) if args.mpp else root / "patches" / "build" / "libs" / mpp_name
+    expected_url = f"https://github.com/brealorg/breal-morphe-patches/releases/download/{tag}/{mpp_name}"
+
+    gradle = read(gradle_path)
+    readme = read(readme_path)
+
+    try:
+        bundle = json.loads(read(bundle_path))
+    except Exception as e:
+        errors.append(f"patches-bundle.json is not valid JSON: {e}")
+        bundle = {}
+
+    req(f"version = {version}" in gradle, f"gradle.properties does not contain: version = {version}")
+
+    req(bundle.get("version") == version, f"patches-bundle.json version is {bundle.get('version')!r}, expected {version!r}")
+    req(bundle.get("download_url") == expected_url, "patches-bundle.json download_url does not match expected release URL")
+
+    description = bundle.get("description", "")
+    for required in args.require_description:
+        req(required in description, f"patches-bundle.json description missing required text: {required!r}")
+
+    req(version in readme, f"README.md missing version {version}")
+    req(tag in readme, f"README.md missing tag {tag}")
+    req(mpp_name in readme, f"README.md missing asset name {mpp_name}")
+
+    req(mpp_path.exists(), f"MPP does not exist: {mpp_path}")
+
+    if mpp_path.exists():
+        actual_sha = sha256_file(mpp_path)
+        readme_sha = read_readme_sha(readme)
+
+        req(readme_sha == actual_sha, f"README SHA does not match built MPP. README={readme_sha}, actual={actual_sha}")
+
+        try:
+            with zipfile.ZipFile(mpp_path) as z:
+                names = set(z.namelist())
+
+                dex_entries = sorted(name for name in names if Path(name).name.endswith(".dex"))
+                req(bool(dex_entries), "MPP has no dex entries")
+                req(any(Path(name).name == "classes.dex" for name in dex_entries), "MPP missing classes.dex")
+
+                boost_ext = "extensions/boostforreddit.mpe"
+                req(boost_ext in names, f"MPP missing {boost_ext}")
+
+                if boost_ext in names:
+                    data = z.read(boost_ext)
+                    for marker in args.marker:
+                        req(marker.encode("utf-8") in data, f"{boost_ext} missing marker: {marker!r}")
+
+                print("MPP:", mpp_path)
+                print("MPP SHA256:", actual_sha)
+                print("DEX entries:", ", ".join(dex_entries))
+                print("Boost extension:", "OK" if boost_ext in names else "MISSING")
+
+        except zipfile.BadZipFile:
+            errors.append(f"MPP is not a valid zip file: {mpp_path}")
+        except Exception as e:
+            errors.append(f"Could not inspect MPP: {e}")
+
+    metadata_files = [gradle_path, bundle_path, readme_path]
+    for stale in args.stale:
+        for file in metadata_files:
+            if stale in read(file):
+                errors.append(f"stale value {stale!r} still present in {file.name}")
+
+    if not args.skip_staged_check:
+        staged = git_staged_files()
+        bad_staged = [
+            path for path in staged
+            if path.endswith(".mpp")
+            or path.startswith("patches/build/")
+            or "/build/" in path
+        ]
+        req(not bad_staged, f"build artifacts are staged: {bad_staged}")
+
+    if errors:
+        print("RELEASE GATE FAILED")
+        for error in errors:
+            print(f" - {error}")
+        return 1
+
+    print("RELEASE GATE OK")
+    print("Version:", version)
+    print("Tag:", tag)
+    print("Expected URL:", expected_url)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
