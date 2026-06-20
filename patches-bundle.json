@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-06-19T00:00:00",
-  "description": "Unofficial safe hotfix source for Boost for Reddit. Derived from Patcheddit. Includes v.redd.it video sharing/download audio fix, faster Giphy loading via direct media.giphy.com MP4 fallback, restored fixed inline Giphy previews in comments, fixed inline preview layout state reuse so comment action bars do not move after scrolling/rebinding, improved inline preview layout/collapse behavior, inline previews for direct GIF links such as i.redd.it/*.gif, and completed download notifications on a separate default-importance channel while progress notifications remain low-priority. Attribution notices updated.",
-  "download_url": "https://github.com/brealorg/breal-boost-hotfixes/releases/download/boost-hotfix-15/patches-1.4.0.mpp",
+  "created_at": "2026-06-20T00:00:00",
+  "description": "Unofficial Morphe patch bundle for supported apps. Includes existing Boost for Reddit hotfixes and Imgur selected media sharing patches. Boost fixes include v.redd.it video sharing/download audio fix, faster Giphy loading via direct media.giphy.com MP4 fallback, inline Giphy/direct GIF previews in comments, improved inline preview layout/collapse behavior, and completed download notifications on a separate default-importance channel while progress notifications remain low-priority.",
+  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-16/patches-1.4.0.mpp",
   "signature_download_url": "",
-  "version": "1.4.0-boost-hotfix.15"
+  "version": "1.4.0-morphe-patches.16"
 }
