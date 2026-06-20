@@ -1,4 +1,4 @@
-rootProject.name = "breal-boost-hotfixes"
+rootProject.name = "breal-morphe-patches"
 
 pluginManagement {
     repositories {

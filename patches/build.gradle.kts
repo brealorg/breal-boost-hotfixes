@@ -2,12 +2,12 @@ group = "app.morphe"
 
 patches {
     about {
-        name = "Breal Boost Hotfixes"
-        description = "Morphe Patches for Reddit"
-        source = "https://github.com/brealorg/breal-boost-hotfixes.git"
+        name = "Breal Morphe Patches"
+        description = "Morphe patch bundle for Boost for Reddit, Imgur, and other supported apps"
+        source = "https://github.com/brealorg/breal-morphe-patches.git"
         author = "wchill + brealorg"
         contact = "w@chill.dev"
-        website = "https://github.com/brealorg/breal-boost-hotfixes"
+        website = "https://github.com/brealorg/breal-morphe-patches"
         license = "Additional conditions under GPL section 7 apply: attribution and project name restrictions. See LICENSE file."
     }
 }
