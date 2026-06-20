@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-06-20T20:40:27",
-  "description": "Boost hotfix bundle 21\n\nBreal Morphe patch source.\n\nUse this as a Morphe patch source only. Clean APKs must be supplied separately:\n- Boost for Reddit: 1.12.12\n- Imgur: 7.33.0.0\n\nBoost fixes:\n- v.redd.it download/share audio\n- faster Giphy loading\n- inline Giphy previews in comments\n- inline previews for direct GIF links\n- preview layout handling\n- completed download notifications\n\nImgur compatibility is also included in this source.\n",
-  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-21/patches-1.4.21.mpp",
+  "created_at": "2026-06-20T23:51:46",
+  "description": "Boost hotfix bundle 22\n\nBreal Morphe patch source.\n\nUse this as a Morphe patch source only. Clean APKs must be supplied separately:\n- Boost for Reddit: 1.12.12\n- Imgur: 7.33.0.0\n\nBoost fixes:\n- v.redd.it download/share audio\n- faster Giphy loading\n- inline Giphy previews in comments\n- inline previews for direct GIF links\n- preview layout handling\n- completed download notifications\n- Reddit comment video player links now open in Boost's native video player instead of WebView\n\nImgur compatibility is also included in this source.\n",
+  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-22/patches-1.4.22.mpp",
   "signature_download_url": "",
-  "version": "1.4.21"
+  "version": "1.4.22"
 }
