@@ -96,6 +96,23 @@ val fixDownloadCompletedNotificationVisibilityPatch = bytecodePatch(
                 completedNotificationChannelStringIndex,
                 """const-string v2, "$COMPLETED_DOWNLOAD_CHANNEL_ID""""
             )
+
+            val completedNotifyIndex = indexOfFirstInstructionReversedOrThrow {
+                opcode == Opcode.INVOKE_VIRTUAL &&
+                    getReference<MethodReference>()?.toString() ==
+                    "Landroid/app/NotificationManager;->notify(ILandroid/app/Notification;)V"
+            }
+
+            addInstructions(
+                completedNotifyIndex,
+                """
+                    invoke-virtual {p0, p3}, Landroid/app/NotificationManager;->cancel(I)V
+
+                    const v2, 0x61c0ffee
+
+                    xor-int/2addr p3, v2
+                    """
+            )
         }
     }
 }
