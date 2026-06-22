@@ -7,7 +7,7 @@ usage() {
 Usage:
   scripts/archive-apk-candidate.sh \
     --apk /path/to/app.apk \
-    --name working-dev-auth-baseline \
+    --name boost-normal-smoke-baseline \
     [--apply-log /path/to/apply.log] \
     [--result-json /path/to/result.json] \
     [--notes "short note"]
