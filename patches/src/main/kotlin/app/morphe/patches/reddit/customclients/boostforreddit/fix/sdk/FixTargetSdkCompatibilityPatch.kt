@@ -18,6 +18,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import org.w3c.dom.Element
 
 private const val TARGET_SDK_VERSION = "35"
+private const val POST_NOTIFICATIONS_PERMISSION = "android.permission.POST_NOTIFICATIONS"
 private const val RECEIVER_COMPAT_DESCRIPTOR =
     "Lapp/morphe/extension/boostforreddit/utils/ReceiverCompat;"
 
@@ -32,6 +33,27 @@ private val setBoostTargetSdk35Patch = resourcePatch(
         document("AndroidManifest.xml").use { document ->
             val manifestNode = document.getElementsByTagName("manifest").item(0) as Element
             val usesSdkNodes = document.getElementsByTagName("uses-sdk")
+
+            val hasPostNotificationsPermission =
+                document.getElementsByTagName("uses-permission").let { nodes ->
+                    (0 until nodes.length).any { index ->
+                        val node = nodes.item(index) as? Element
+                        node?.getAttribute("android:name") == POST_NOTIFICATIONS_PERMISSION
+                    }
+                }
+
+            if (!hasPostNotificationsPermission) {
+                document.createElement("uses-permission").also { node ->
+                    node.setAttribute("android:name", POST_NOTIFICATIONS_PERMISSION)
+
+                    val firstApplicationNode = document.getElementsByTagName("application").item(0)
+                    if (firstApplicationNode != null) {
+                        manifestNode.insertBefore(node, firstApplicationNode)
+                    } else {
+                        manifestNode.appendChild(node)
+                    }
+                }
+            }
 
             val usesSdkNode =
                 if (usesSdkNodes.length > 0) {
