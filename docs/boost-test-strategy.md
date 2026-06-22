@@ -1,20 +1,30 @@
 # Boost for Reddit test strategy
 
-This document defines the local Boost test layout and prevents accidental overwriting of working app/data states.
+This document defines the local Boost test model and prevents accidental creation of unnecessary app variants.
 
 ## Installed package roles
 
 | Package | Role | Rule |
 | --- | --- | --- |
 | `com.rubenmayayo.reddit` | Normal user app | Do not touch unless explicitly approved. |
-| `com.rubenmayayo.reddit.dev` | Active DEV lane | All Boost development/runtime testing happens here. Before overwriting it, ensure a known-good rollback APK is archived. |
-| Any other `com.rubenmayayo.reddit.*` package | Avoid | Do not create extra app variants unless there is a specific, explicit reason. |
+| `com.rubenmayayo.reddit.dev` | Boost DEV | This is the only development/runtime test app. All Boost development testing happens here. |
+| Any other `com.rubenmayayo.reddit.*` package | Avoid | Do not create extra app variants by default. |
 
-## DEV lane and known-good auth baseline
+## Boost DEV model
 
-The active development package is `com.rubenmayayo.reddit.dev`.
+Boost DEV is the active development app:
 
-The current known-good rollback baseline is:
+- Package: `com.rubenmayayo.reddit.dev`
+- Label: `Boost DEV`
+- Purpose: development and runtime testing
+- Update method: install new DEV candidates over this package
+- Rollback method: reinstall a known-good DEV APK from `local-artifacts/apk-archive/`
+
+The normal app, `com.rubenmayayo.reddit`, is not part of the development lane and must remain untouched unless explicitly approved.
+
+## Known-good rollback baseline
+
+Current known-good Boost DEV rollback baseline:
 
 - Package: `com.rubenmayayo.reddit.dev`
 - Label: `Boost DEV`
@@ -46,11 +56,30 @@ The known-good rollback APK is archived locally under:
 
 `local-artifacts/` is intentionally ignored by Git.
 
+## APK gallery
+
+The local APK gallery exists so Boost DEV can be overwritten during development without losing the ability to return to a known working APK.
+
+Archive candidates under:
+
+- `local-artifacts/apk-archive/`
+
+Each archived candidate should include:
+
+- APK
+- SHA256
+- manifest JSON
+- notes
+- apply log when available
+- result JSON when available
+
+The APK gallery is a code rollback mechanism. It is not an app data backup.
+
 ## Current full SDK35 candidate
 
-The current full candidate is APK-only unless explicitly installed.
+The current full candidate is first built APK-only.
 
-Expected state:
+Expected state before DEV conversion:
 
 - Package: `com.rubenmayayo.reddit`
 - Label: `Boost`
@@ -58,48 +87,44 @@ Expected state:
 - `POST_NOTIFICATIONS`: present
 - Installed by default: no
 
-It should be archived under:
+Before runtime testing, this candidate must be converted to Boost DEV:
 
-- `local-artifacts/apk-archive/*-current-sdk35-full-apk-only/`
-
-This candidate is useful for static validation and release-gate input, but it is not runtime-validated until installed and tested.
+- Package rewritten to `com.rubenmayayo.reddit.dev`
+- Label preserved as `Boost DEV`
+- Signed with the same DEV test keystore
+- Installed with `adb install -r` over existing Boost DEV
 
 ## Runtime test policy
 
-Runtime testing happens in the DEV lane: `com.rubenmayayo.reddit.dev`.
+Runtime testing happens in Boost DEV:
+
+- `com.rubenmayayo.reddit.dev`
 
 Do not silently create a growing set of app variants.
 
-Allowed strategies:
+Runtime rules:
 
-### Strategy A: APK-only validation
-
-Use this when checking build integrity, metadata, markers, target SDK, permissions, MPP contents, release-gate state, and archive state.
-
-This does not prove runtime behavior.
-
-### Strategy B: DEV-lane runtime testing
-
-Use `com.rubenmayayo.reddit.dev` for runtime testing.
-
-Rules:
-
-- Confirm the normal package still exists before install.
+- Confirm `com.rubenmayayo.reddit` exists and remains untouched.
+- Confirm `com.rubenmayayo.reddit.dev` exists.
 - Confirm a known-good DEV rollback APK exists in `local-artifacts/apk-archive/`.
 - Build the candidate from clean Boost.
 - Rewrite the candidate package to `com.rubenmayayo.reddit.dev`.
-- Preserve the launcher label `Boost DEV`.
-- Sign with the DEV test keystore so `adb install -r` can preserve app data.
+- Preserve label `Boost DEV`.
+- Sign with the DEV test keystore.
 - Install over `com.rubenmayayo.reddit.dev`.
 - Test login, media routing, downloads, notifications, Crashlytics noise, and logcat.
 - Archive the tested APK and logs.
-- If the candidate fails, reinstall the known-good rollback APK from the APK archive.
+- If the candidate fails, reinstall the known-good rollback APK.
 
-### Strategy C: normal package replacement
+## Normal package replacement
 
-Only use this when explicitly approved and the risk to the normal Boost install/data is accepted, or when signing/Manager flow guarantees a safe update path.
+Normal package replacement means installing over:
+
+- `com.rubenmayayo.reddit`
 
 This is not the default strategy.
+
+Only use it when explicitly approved and the risk to the normal Boost install/data is accepted, or when signing/Manager flow guarantees a safe update path.
 
 ## Release validation minimum
 
@@ -138,9 +163,10 @@ For Crashlytics changes, runtime validation must include:
 Default strategy from this point:
 
 - Keep `com.rubenmayayo.reddit` untouched.
-- Use `com.rubenmayayo.reddit.dev` as the active DEV lane.
+- Use `com.rubenmayayo.reddit.dev` as the only Boost development/runtime test app.
 - Build candidates APK-only first.
 - Archive candidates locally.
-- Runtime-test by installing over `com.rubenmayayo.reddit.dev`.
-- Before overwriting DEV, verify that a known-good rollback APK exists.
+- Convert runtime candidates to `com.rubenmayayo.reddit.dev`.
+- Install over Boost DEV for testing.
+- Roll back Boost DEV from APK archive when needed.
 - Do not create extra app variants by default.
