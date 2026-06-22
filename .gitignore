@@ -132,3 +132,6 @@ local.properties
 __pycache__/
 
 *.py[cod]
+
+# Local APK/test artifacts - never commit
+/local-artifacts/
