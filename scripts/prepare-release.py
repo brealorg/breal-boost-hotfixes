@@ -94,9 +94,7 @@ def set_readme_sha(text: str, sha: str) -> str:
 
 
 def update_description(version: str, tag: str, changelog_lines: list[str]) -> str:
-    release_number = tag.split("-")[-1]
-
-    latest_lines: list[str] = []
+    description_lines: list[str] = []
     seen: set[str] = set()
 
     for item in changelog_lines:
@@ -104,37 +102,13 @@ def update_description(version: str, tag: str, changelog_lines: list[str]) -> st
         if not normalized or normalized in seen:
             continue
 
-        latest_lines.append(f"- {normalized}")
+        description_lines.append(normalized)
         seen.add(normalized)
 
-    if not latest_lines:
-        latest_lines.append("- Metadata-only release.")
+    if not description_lines:
+        description_lines.append("Bug Fixes\n\n• Metadata-only release.")
 
-    previous_fixes = [
-        "- Boost for Reddit 1.12.12: v.redd.it download/share audio, faster Giphy loading, inline Giphy/direct GIF previews, completed download notifications, and native Reddit comment video-player links",
-        "- Imgur 7.33.0.0: selected media file sharing and selected-media URL sharing",
-    ]
-
-    clean_apks = [
-        "- Boost for Reddit: 1.12.12",
-        "- Imgur: 7.33.0.0",
-    ]
-
-    lines = [
-        f"Morphe patch bundle {release_number}",
-        "",
-        f"Latest in {version}:",
-        *latest_lines,
-        "",
-        "Also includes previous fixes:",
-        *previous_fixes,
-        "",
-        "Clean APKs must be supplied separately:",
-        *clean_apks,
-    ]
-
-    return "\n".join(lines).rstrip() + "\n"
-
+    return "\n".join(description_lines).rstrip() + "\n"
 
 def update_bundle_json(path: Path, version: str, tag: str, changelog_lines: list[str]) -> None:
     data = json.loads(read(path))
@@ -230,7 +204,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Prepare Morphe patch bundle release metadata and artifact.")
     parser.add_argument("--version", required=True, help="New release version, e.g. 1.4.23")
     parser.add_argument("--tag", help="Release tag. Defaults to morphe-patches-<patch version>.")
-    parser.add_argument("--changelog", action="append", default=[], help="Release-note line to add under Latest in <version>. Can be repeated.")
+    parser.add_argument("--changelog", action="append", default=[], help="Manager-facing release description text. Can be repeated.")
     parser.add_argument("--marker", action="append", default=[], help="Marker to require in extensions/boostforreddit.mpe. Can be repeated.")
     parser.add_argument("--stale", action="append", default=[], help="Old value that must not remain in release metadata. Can be repeated.")
     parser.add_argument("--allow-empty-changelog", action="store_true", help="Allow release without adding a changelog line.")

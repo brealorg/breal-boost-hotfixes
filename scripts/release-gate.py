@@ -11,6 +11,19 @@ import zipfile
 from pathlib import Path
 
 
+FORBIDDEN_DESCRIPTION_FRAGMENTS = [
+    "Morphe patch bundle",
+    "Latest in",
+    "Also includes",
+    "previous fixes",
+    "Clean APKs",
+    "Clean APKs must be supplied separately",
+]
+
+MAX_MANAGER_DESCRIPTION_LENGTH = 700
+
+
+
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -102,6 +115,14 @@ def main() -> int:
     description = bundle.get("description", "")
     for required in args.require_description:
         req(required in description, f"patches-bundle.json description missing required text: {required!r}")
+
+    for forbidden in FORBIDDEN_DESCRIPTION_FRAGMENTS:
+        req(forbidden not in description, f"patches-bundle.json description contains forbidden Manager boilerplate: {forbidden!r}")
+
+    req(
+        len(description) <= MAX_MANAGER_DESCRIPTION_LENGTH,
+        f"patches-bundle.json description is too long for Manager-facing text: {len(description)} characters",
+    )
 
     req(version in readme, f"README.md missing version {version}")
     req(tag in readme, f"README.md missing tag {tag}")
