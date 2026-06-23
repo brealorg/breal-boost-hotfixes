@@ -384,12 +384,18 @@ public final class InlineGiphyCommentPreview {
             Object submission = submissionClass.getDeclaredConstructor().newInstance();
 
             boolean animated = isLikelyAnimatedMediaUrl(url);
+            boolean directIRedditGif = isDirectIRedditGif(url);
 
             // Known from Boost's own GalleryActivity/ImageActivity paths:
             // K2(4) = static image-ish media
             // K2(5) = gif/video-ish media
-            callIntSetter(submission, "K2", animated ? 5 : 4);
+            callIntSetter(submission, "K2", directIRedditGif ? 4 : (animated ? 5 : 4));
             callStringSetter(submission, "L2", url);
+
+            if (directIRedditGif && openStaticImageViaBoost(activity, submissionClass, submission)) {
+                Log.d(LOG_TAG, "open direct i.redd.it gif via Boost image viewer: " + url);
+                return true;
+            }
 
             if (!animated && openStaticImageViaBoost(activity, submissionClass, submission)) {
                 return true;
@@ -481,6 +487,24 @@ public final class InlineGiphyCommentPreview {
         if (first != null && first.length() > 0) return first;
         if (second != null && second.length() > 0) return second;
         return null;
+    }
+
+    private static boolean isDirectIRedditGif(String url) {
+        if (url == null) return false;
+
+        String lower = url.toLowerCase();
+
+        int queryIndex = lower.indexOf('?');
+        if (queryIndex >= 0) {
+            lower = lower.substring(0, queryIndex);
+        }
+
+        int fragmentIndex = lower.indexOf('#');
+        if (fragmentIndex >= 0) {
+            lower = lower.substring(0, fragmentIndex);
+        }
+
+        return lower.startsWith("https://i.redd.it/") && lower.endsWith(".gif");
     }
 
     private static boolean isLikelyAnimatedMediaUrl(String url) {
