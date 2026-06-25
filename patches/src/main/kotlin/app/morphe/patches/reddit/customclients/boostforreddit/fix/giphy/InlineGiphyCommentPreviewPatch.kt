@@ -35,7 +35,7 @@ val inlineGiphyCommentPreviewPatch = bytecodePatch(
             addInstructions(
                 0,
                 """
-                    invoke-static {p1}, $INLINE_GIPHY_EXTENSION_DESCRIPTOR->cleanCommentHtml(Ljava/lang/Object;)V
+                    invoke-static {p0, p1}, $INLINE_GIPHY_EXTENSION_DESCRIPTOR->cleanCommentHtml(Ljava/lang/Object;Ljava/lang/Object;)V
                     invoke-static {p0, p1, p5}, $INLINE_GIPHY_EXTENSION_DESCRIPTOR->bind(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V
                     """
             )

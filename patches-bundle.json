@@ -1,7 +1,7 @@
 {
   "created_at": "2026-06-25T18:16:54Z",
-  "description": "Dev preview\n- Adds Boost Morphe media preview settings UI without changing runtime behavior.",
-  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-30-dev.3/patches-1.4.30-dev.3.mpp",
+  "description": "Dev preview\n- Wires the Boost Morphe inline media previews enable toggle into runtime.",
+  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-30-dev.4/patches-1.4.30-dev.4.mpp",
   "signature_download_url": "",
-  "version": "1.4.30-dev.3"
+  "version": "1.4.30-dev.4"
 }

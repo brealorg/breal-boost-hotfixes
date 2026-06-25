@@ -29,6 +29,9 @@ public final class InlineGiphyCommentPreview {
 
     private static final String PREVIEW_TAG = "morphe_boost_inline_giphy_preview";
     private static final String LOG_TAG = "InlineGiphy";
+    private static final String PREF_INLINE_MEDIA_PREVIEWS_ENABLED =
+            "morphe_boost_inline_media_previews_enabled";
+    private static final boolean DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED = true;
     private static final Map<Object, PreviewSource> PREVIEW_SOURCES = new WeakHashMap<>();
 
     private static final Pattern DIRECT_PREVIEW_URL_PATTERN =
@@ -57,9 +60,20 @@ public final class InlineGiphyCommentPreview {
         }
     }
 
-    public static void cleanCommentHtml(Object commentModel) {
+    public static void cleanCommentHtml(Object holder, Object commentModel) {
         try {
             if (commentModel == null) return;
+
+            Context context = null;
+            View itemView = getItemView(holder);
+            if (itemView != null) {
+                context = itemView.getContext();
+            }
+
+            if (!isInlineMediaPreviewsEnabled(context)) {
+                PREVIEW_SOURCES.remove(commentModel);
+                return;
+            }
 
             PreviewSource previewSource = findPreviewSource(commentModel);
             if (previewSource == null) return;
@@ -75,10 +89,6 @@ public final class InlineGiphyCommentPreview {
         try {
             if (holder == null || commentModel == null) return;
 
-            PreviewSource previewSource = findPreviewSource(commentModel);
-            if (previewSource == null) {
-                previewSource = PREVIEW_SOURCES.get(commentModel);
-            }
             View itemView = getItemView(holder);
 
             if (!(itemView instanceof ViewGroup)) {
@@ -86,6 +96,16 @@ public final class InlineGiphyCommentPreview {
             }
 
             removeExistingPreview((ViewGroup) itemView);
+
+            if (!isInlineMediaPreviewsEnabled(itemView.getContext())) {
+                PREVIEW_SOURCES.remove(commentModel);
+                return;
+            }
+
+            PreviewSource previewSource = findPreviewSource(commentModel);
+            if (previewSource == null) {
+                previewSource = PREVIEW_SOURCES.get(commentModel);
+            }
 
             if (previewSource == null || previewSource.gifUrl == null || previewSource.gifUrl.length() == 0) {
                 return;
@@ -160,6 +180,26 @@ public final class InlineGiphyCommentPreview {
             preview.setVisibility(showPreview ? View.VISIBLE : View.GONE);
             updateRelativeLayoutAnchors(commentText, preview, showPreview);
         } catch (Throwable ignored) {
+        }
+    }
+
+    private static boolean isInlineMediaPreviewsEnabled(Context context) {
+        if (context == null) {
+            return DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED;
+        }
+
+        try {
+            android.content.SharedPreferences preferences = context.getSharedPreferences(
+                    context.getPackageName() + "_preferences",
+                    Context.MODE_PRIVATE
+            );
+
+            return preferences.getBoolean(
+                    PREF_INLINE_MEDIA_PREVIEWS_ENABLED,
+                    DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED
+            );
+        } catch (Throwable ignored) {
+            return DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED;
         }
     }
 
