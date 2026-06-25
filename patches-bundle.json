@@ -1,7 +1,7 @@
 {
   "created_at": "2026-06-25T18:16:54Z",
-  "description": "Dev Test\n\n• Boost for Reddit: add a build-only Morphe settings resource skeleton.\n• No Boost settings screen or inline GIF rendering behavior is changed in this dev build.\n",
-  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-30-dev.1/patches-1.4.30-dev.1.mpp",
+  "description": "Dev preview\n- Adds a visible Boost Morphe media previews settings entry without changing runtime behavior.",
+  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-30-dev.2/patches-1.4.30-dev.2.mpp",
   "signature_download_url": "",
-  "version": "1.4.30-dev.1"
+  "version": "1.4.30-dev.2"
 }

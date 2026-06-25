@@ -7,7 +7,7 @@ import app.morphe.patches.reddit.customclients.boostforreddit.BoostCompatible
 @Suppress("unused")
 val boostMorpheSettingsSkeletonPatch = resourcePatch(
     name = "Boost Morphe settings skeleton",
-    description = "Dev-only Boost Morphe settings resource skeleton. Does not change Boost runtime behavior.",
+    description = "Dev-only visible Boost Morphe settings entry. Does not change Boost runtime behavior.",
     default = false
 ) {
     compatibleWith(*BoostCompatible)
@@ -18,11 +18,62 @@ val boostMorpheSettingsSkeletonPatch = resourcePatch(
                 """
                 <?xml version="1.0" encoding="utf-8"?>
                 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-                    <PreferenceCategory android:title="Morphe dev skeleton">
+                    <PreferenceCategory android:title="Morphe">
                         <Preference
                             android:key="morphe_boost_settings_skeleton_marker"
                             android:title="Morphe dev skeleton"
                             android:summary="Build-only resource skeleton. No runtime behavior is changed." />
+                    </PreferenceCategory>
+                </PreferenceScreen>
+                """.trimIndent()
+            )
+        }
+
+        get("res/xml/pref_advanced_v2.xml").utf8Writer().use { writer ->
+            writer.write(
+                """
+                <?xml version="1.0" encoding="utf-8"?>
+                <PreferenceScreen
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <Preference
+                        android:icon="@drawable/ic_photo_outline_24dp"
+                        android:title="@string/pref_media_viewer_title"
+                        android:summary="@string/pref_header_media_summary"
+                        android:fragment="com.rubenmayayo.reddit.ui.preferences.v2.PreferenceFragmentMediaCompat" />
+                    <Preference
+                        android:icon="@drawable/ic_link_24dp"
+                        android:title="@string/pref_header_links"
+                        android:summary="@string/pref_header_links_summary"
+                        android:fragment="com.rubenmayayo.reddit.ui.preferences.v2.PreferenceFragmentLinksCompat" />
+                    <Preference
+                        android:icon="@drawable/ic_subreddit_24dp"
+                        android:title="@string/pref_header_account"
+                        android:summary="@string/pref_header_account_summary"
+                        android:fragment="com.rubenmayayo.reddit.ui.preferences.v2.PreferenceFragmentAccountCompat" />
+                    <Preference
+                        android:icon="@drawable/ic_search_color_24dp"
+                        android:title="@string/search"
+                        android:summary="@string/search_summary"
+                        android:fragment="com.rubenmayayo.reddit.ui.preferences.v2.PreferenceFragmentSearchCompat" />
+                    <Preference
+                        android:icon="@drawable/ic_save_24dp"
+                        android:title="@string/pref_header_backup"
+                        android:summary="@string/pref_header_backup_summary">
+                        <intent
+                            android:targetPackage="com.rubenmayayo.reddit"
+                            android:targetClass="com.rubenmayayo.reddit.BackupActivity" />
+                    </Preference>
+                    <Preference
+                        android:icon="@drawable/ic_restore_black_24dp"
+                        android:title="@string/pref_header_legacy"
+                        android:summary="@string/pref_header_legacy_summary"
+                        android:fragment="com.rubenmayayo.reddit.ui.preferences.v2.PreferenceFragmentMiscCompat" />
+
+                    <PreferenceCategory android:title="Morphe">
+                        <Preference
+                            android:key="morphe_boost_media_previews_entry"
+                            android:title="Media previews"
+                            android:summary="Dev placeholder. No behavior is changed." />
                     </PreferenceCategory>
                 </PreferenceScreen>
                 """.trimIndent()
