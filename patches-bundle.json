@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-06-23T11:22:13",
-  "description": "Bug Fixes\n\n• Boost for Reddit: direct i.redd.it GIF links now open through Boost's image viewer instead of being forced through the video route.\n• Boost for Reddit: restore safe URL handling to avoid login callback regressions.\n",
-  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-27/patches-1.4.27.mpp",
+  "created_at": "2026-06-25T00:00:00",
+  "description": "Bug Fixes\n\n• Boost for Reddit: add Morphe settings for inline media previews in comments.\n• Boost for Reddit: allow inline previews to be disabled, left-aligned, or shown without hiding the source text.\n",
+  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-28/patches-1.4.28.mpp",
   "signature_download_url": "",
-  "version": "1.4.27"
+  "version": "1.4.28"
 }
