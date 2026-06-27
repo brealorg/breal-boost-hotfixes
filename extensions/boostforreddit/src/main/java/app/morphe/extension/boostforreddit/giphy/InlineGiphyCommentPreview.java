@@ -7,6 +7,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -33,8 +34,14 @@ public final class InlineGiphyCommentPreview {
             "morphe_boost_inline_media_previews_enabled";
     private static final String PREF_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT =
             "morphe_boost_inline_media_preview_show_source_text";
+    private static final String PREF_INLINE_MEDIA_PREVIEW_ALIGNMENT =
+            "morphe_boost_inline_media_preview_alignment";
+    private static final String ALIGNMENT_LEFT = "left";
+    private static final String ALIGNMENT_CENTER = "center";
+    private static final String ALIGNMENT_RIGHT = "right";
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED = true;
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT = false;
+    private static final String DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT = ALIGNMENT_CENTER;
     private static final Map<Object, PreviewSource> PREVIEW_SOURCES = new WeakHashMap<>();
 
     private static final Pattern DIRECT_PREVIEW_URL_PATTERN =
@@ -119,6 +126,7 @@ public final class InlineGiphyCommentPreview {
             final Context context = itemView.getContext();
             final String gifUrl = previewSource.gifUrl;
             final String sourceUrl = previewSource.sourceUrl;
+            final String previewAlignment = getPreviewAlignment(context);
 
             LinearLayout container = new LinearLayout(context);
             container.setTag(PREVIEW_TAG);
@@ -130,7 +138,7 @@ public final class InlineGiphyCommentPreview {
             imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
             LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    imageWidthForAlignment(previewAlignment),
                     dp(context, 170)
             );
 
@@ -143,9 +151,11 @@ public final class InlineGiphyCommentPreview {
             label.setSingleLine(true);
 
             container.addView(label, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    textWidthForAlignment(previewAlignment),
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
+
+            applyPreviewAlignment(container, label, previewAlignment);
 
             View.OnClickListener mediaClickListener = new View.OnClickListener() {
                 @Override
@@ -225,6 +235,82 @@ public final class InlineGiphyCommentPreview {
             );
         } catch (Throwable ignored) {
             return DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT;
+        }
+    }
+
+    private static String getPreviewAlignment(Context context) {
+        if (context == null) {
+            return DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT;
+        }
+
+        try {
+            android.content.SharedPreferences preferences = context.getSharedPreferences(
+                    context.getPackageName() + "_preferences",
+                    Context.MODE_PRIVATE
+            );
+
+            String value = preferences.getString(
+                    PREF_INLINE_MEDIA_PREVIEW_ALIGNMENT,
+                    DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT
+            );
+
+            return normalizePreviewAlignment(value);
+        } catch (Throwable ignored) {
+            return DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT;
+        }
+    }
+
+    private static String normalizePreviewAlignment(String value) {
+        if (value == null) {
+            return DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT;
+        }
+
+        String normalized = value.trim().toLowerCase(java.util.Locale.US);
+        if (ALIGNMENT_LEFT.equals(normalized)
+                || ALIGNMENT_CENTER.equals(normalized)
+                || ALIGNMENT_RIGHT.equals(normalized)) {
+            return normalized;
+        }
+
+        return DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT;
+    }
+
+    private static int imageWidthForAlignment(String alignment) {
+        if (ALIGNMENT_LEFT.equals(alignment) || ALIGNMENT_RIGHT.equals(alignment)) {
+            return ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
+
+        return ViewGroup.LayoutParams.MATCH_PARENT;
+    }
+
+    private static int textWidthForAlignment(String alignment) {
+        if (ALIGNMENT_LEFT.equals(alignment) || ALIGNMENT_RIGHT.equals(alignment)) {
+            return ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
+
+        return ViewGroup.LayoutParams.MATCH_PARENT;
+    }
+
+    private static void applyPreviewAlignment(LinearLayout container, TextView label, String alignment) {
+        if (container == null) {
+            return;
+        }
+
+        if (ALIGNMENT_LEFT.equals(alignment)) {
+            container.setGravity(Gravity.START);
+            if (label != null) {
+                label.setGravity(Gravity.START);
+            }
+        } else if (ALIGNMENT_RIGHT.equals(alignment)) {
+            container.setGravity(Gravity.END);
+            if (label != null) {
+                label.setGravity(Gravity.END);
+            }
+        } else {
+            container.setGravity(Gravity.CENTER_HORIZONTAL);
+            if (label != null) {
+                label.setGravity(Gravity.CENTER_HORIZONTAL);
+            }
         }
     }
 

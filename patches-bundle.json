@@ -1,7 +1,7 @@
 {
   "created_at": "2026-06-25T18:16:54Z",
-  "description": "Dev preview\n- Wires the Boost Morphe source-text-with-preview toggle into runtime.",
-  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-30-dev.5/patches-1.4.30-dev.5.mpp",
+  "description": "Dev preview\n- Wires the Boost Morphe preview alignment setting into runtime.",
+  "download_url": "https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-30-dev.6/patches-1.4.30-dev.6.mpp",
   "signature_download_url": "",
-  "version": "1.4.30-dev.5"
+  "version": "1.4.30-dev.6"
 }
