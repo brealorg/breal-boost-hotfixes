@@ -35,12 +35,19 @@ public final class InlineGiphyCommentPreview {
             "morphe_boost_inline_media_preview_show_source_text";
     private static final String PREF_INLINE_MEDIA_PREVIEW_ALIGNMENT =
             "morphe_boost_inline_media_preview_alignment";
+    private static final String PREF_DIRECT_REDDIT_GIF_TAP_ACTION =
+            "morphe_boost_direct_reddit_gif_tap_action";
+    private static final String TAP_ACTION_IMAGE_VIEWER = "image_viewer";
+    private static final String TAP_ACTION_VIDEO_VIEWER = "video_viewer";
+    private static final String TAP_ACTION_BROWSER = "browser";
+    private static final String TAP_ACTION_DISABLED = "disabled";
     private static final String ALIGNMENT_LEFT = "left";
     private static final String ALIGNMENT_CENTER = "center";
     private static final String ALIGNMENT_RIGHT = "right";
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED = true;
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT = false;
     private static final String DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT = ALIGNMENT_CENTER;
+    private static final String DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION = TAP_ACTION_IMAGE_VIEWER;
     private static final Map<Object, PreviewSource> PREVIEW_SOURCES = new WeakHashMap<>();
 
     private static final Pattern DIRECT_PREVIEW_URL_PATTERN =
@@ -243,6 +250,45 @@ public final class InlineGiphyCommentPreview {
         } catch (Throwable ignored) {
             return DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT;
         }
+    }
+
+    private static String getDirectRedditGifTapAction(Context context) {
+        if (context == null) {
+            return DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION;
+        }
+
+        try {
+            android.content.SharedPreferences preferences = context.getSharedPreferences(
+                    context.getPackageName() + "_preferences",
+                    Context.MODE_PRIVATE
+            );
+
+            String value = preferences.getString(
+                    PREF_DIRECT_REDDIT_GIF_TAP_ACTION,
+                    DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION
+            );
+
+            return normalizeMediaTapAction(value, DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION);
+        } catch (Throwable ignored) {
+            return DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION;
+        }
+    }
+
+    private static String normalizeMediaTapAction(String value, String fallback) {
+        if (value == null) {
+            return fallback;
+        }
+
+        String normalized = value.trim().toLowerCase(java.util.Locale.US);
+
+        if (TAP_ACTION_IMAGE_VIEWER.equals(normalized)
+                || TAP_ACTION_VIDEO_VIEWER.equals(normalized)
+                || TAP_ACTION_BROWSER.equals(normalized)
+                || TAP_ACTION_DISABLED.equals(normalized)) {
+            return normalized;
+        }
+
+        return fallback;
     }
 
     private static String normalizePreviewAlignment(String value) {
@@ -504,23 +550,45 @@ public final class InlineGiphyCommentPreview {
 
             boolean animated = isLikelyAnimatedMediaUrl(url);
             boolean directIRedditGif = isDirectIRedditGif(url);
+            String directIRedditGifTapAction = directIRedditGif
+                    ? getDirectRedditGifTapAction(activity)
+                    : DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION;
+            boolean forceVideoViewerForDirectGif = directIRedditGif
+                    && TAP_ACTION_VIDEO_VIEWER.equals(directIRedditGifTapAction);
+            boolean animatedForRouting = animated || forceVideoViewerForDirectGif;
+
+            if (directIRedditGif && TAP_ACTION_DISABLED.equals(directIRedditGifTapAction)) {
+                Log.d(LOG_TAG, "direct i.redd.it gif tap disabled: " + url);
+                return true;
+            }
+
+            if (directIRedditGif && TAP_ACTION_BROWSER.equals(directIRedditGifTapAction)) {
+                Log.d(LOG_TAG, "open direct i.redd.it gif externally: " + url);
+                openExternally(activity, url);
+                return true;
+            }
 
             // Known from Boost's own GalleryActivity/ImageActivity paths:
             // K2(4) = static image-ish media
             // K2(5) = gif/video-ish media
-            callIntSetter(submission, "K2", directIRedditGif ? 4 : (animated ? 5 : 4));
+            callIntSetter(
+                    submission,
+                    "K2",
+                    directIRedditGif ? (forceVideoViewerForDirectGif ? 5 : 4) : (animatedForRouting ? 5 : 4)
+            );
             callStringSetter(submission, "L2", url);
 
-            if (directIRedditGif && openStaticImageViaBoost(activity, submissionClass, submission)) {
+            if (directIRedditGif && !forceVideoViewerForDirectGif
+                    && openStaticImageViaBoost(activity, submissionClass, submission)) {
                 Log.d(LOG_TAG, "open direct i.redd.it gif via Boost image viewer: " + url);
                 return true;
             }
 
-            if (!animated && openStaticImageViaBoost(activity, submissionClass, submission)) {
+            if (!animatedForRouting && openStaticImageViaBoost(activity, submissionClass, submission)) {
                 return true;
             }
 
-            if (animated) {
+            if (animatedForRouting) {
                 callStringSetter(submission, "u2", url);
             }
 
