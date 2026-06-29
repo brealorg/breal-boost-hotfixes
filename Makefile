@@ -69,3 +69,6 @@ release-hold-gate:
 boost-runtime-media-marker-gate:
 > @test -n "$(VERSION)" || (echo "Usage: make boost-runtime-media-marker-gate VERSION=1.4.22"; exit 1)
 > ./scripts/check-boost-runtime-media-markers.py --version "$(VERSION)" $(EXTRA_MEDIA_MARKER_ARGS)
+
+boost-reddit-gallery-undelete-marker-gate:
+>./scripts/check-boost-reddit-gallery-undelete-markers.py --version "$(VERSION)" $(EXTRA_GALLERY_UNDELETE_MARKER_ARGS)
