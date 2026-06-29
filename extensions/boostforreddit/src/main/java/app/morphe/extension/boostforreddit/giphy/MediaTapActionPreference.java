@@ -63,11 +63,10 @@ public final class MediaTapActionPreference extends ListPreference {
     }
 
     private static String defaultForKey(String key) {
-        if ("morphe_boost_giphy_preview_tap_action".equals(key)) {
-            return ACTION_VIDEO_VIEWER;
+        if (key != null && (key.contains("direct_reddit_gif") || key.contains("giphy_preview"))) {
+            return "video_viewer";
         }
-
-        return ACTION_IMAGE_VIEWER;
+        return "image_viewer";
     }
 
     private static String labelFor(String action) {

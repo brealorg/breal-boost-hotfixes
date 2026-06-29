@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -51,7 +52,7 @@ public final class InlineGiphyCommentPreview {
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED = true;
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT = false;
     private static final String DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT = ALIGNMENT_CENTER;
-    private static final String DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION = TAP_ACTION_IMAGE_VIEWER;
+    private static final String DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION = TAP_ACTION_VIDEO_VIEWER;
     private static final String DEFAULT_GIPHY_PREVIEW_TAP_ACTION = TAP_ACTION_VIDEO_VIEWER;
     private static final String DEFAULT_STATIC_PREVIEW_TAP_ACTION = TAP_ACTION_IMAGE_VIEWER;
     private static final Map<Object, PreviewSource> PREVIEW_SOURCES = new WeakHashMap<>();
@@ -642,6 +643,10 @@ public final class InlineGiphyCommentPreview {
             boolean directIRedditGif = isDirectIRedditGif(url);
             boolean giphyMedia = isGiphyMediaUrl(url);
             boolean staticPreview = !giphyMedia && isStaticPreviewUrl(url);
+            String host = hostFromUrl(url);
+            if (host != null && host.length() > 0) {
+                callStringSetter(submission, "m2", host);
+            }
             String directIRedditGifTapAction = directIRedditGif
                     ? getDirectRedditGifTapAction(activity)
                     : DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION;
@@ -690,12 +695,12 @@ public final class InlineGiphyCommentPreview {
             callStringSetter(submission, "L2", url);
 
             if (directIRedditGif && !forceVideoViewerForDirectGif
-                    && openStaticImageViaBoost(activity, submissionClass, submission)) {
+                    && openStaticImageViaBoost(activity, submissionClass, submission, true)) {
                 Log.d(LOG_TAG, "open direct i.redd.it gif via Boost image viewer: " + url);
                 return true;
             }
 
-            if (!animatedForRouting && openStaticImageViaBoost(activity, submissionClass, submission)) {
+            if (!animatedForRouting && openStaticImageViaBoost(activity, submissionClass, submission, false)) {
                 return true;
             }
 
@@ -725,8 +730,15 @@ public final class InlineGiphyCommentPreview {
         return false;
     }
 
-    private static boolean openStaticImageViaBoost(Activity activity, Class<?> submissionClass, Object submission) {
+    private static boolean openStaticImageViaBoost(Activity activity, Class<?> submissionClass, Object submission, boolean directRedditGif) {
         if (activity == null || submissionClass == null || submission == null) return false;
+
+        // Forced image routes must avoid MediaImageActivity. That activity can reclassify
+        // inline comment media through its async metadata path and bounce GIF/static URLs
+        // into MediaVideoActivity. Legacy ImageActivity is the stricter image-only viewer.
+        if (openLegacyImageActivityViaBoost(activity, submission, !directRedditGif)) {
+            return true;
+        }
 
         try {
             Class<?> navigationClass = Class.forName("com.rubenmayayo.reddit.ui.activities.i");
@@ -744,6 +756,45 @@ public final class InlineGiphyCommentPreview {
 
         return false;
     }
+
+    private static boolean openLegacyImageActivityViaBoost(Activity activity, Object submission, boolean commentMode) {
+        if (activity == null || !(submission instanceof Parcelable)) return false;
+
+        try {
+            Class<?> imageActivityClass = Class.forName("com.rubenmayayo.reddit.ui.activities.ImageActivity");
+            Intent intent = new Intent(activity, imageActivityClass);
+            intent.putExtra("submission", (Parcelable) submission);
+            intent.putExtra("comment", commentMode);
+
+            Integer accentColor = getBoostAccentColor(activity);
+            if (accentColor != null) {
+                intent.putExtra("accent_color", accentColor.intValue());
+            }
+
+            activity.startActivity(intent);
+            return true;
+        } catch (Throwable throwable) {
+            Log.w(LOG_TAG, "openLegacyImageActivityViaBoost failed", throwable);
+            return false;
+        }
+    }
+
+    private static Integer getBoostAccentColor(Context context) {
+        if (context == null) return null;
+
+        try {
+            Class<?> colorClass = Class.forName("he.f0");
+            Method method = colorClass.getMethod("f", Context.class);
+            Object value = method.invoke(null, context);
+            if (value instanceof Integer) {
+                return (Integer) value;
+            }
+        } catch (Throwable ignored) {
+        }
+
+        return null;
+    }
+
 
     private static Activity findActivity(Context context) {
         Context current = context;
@@ -778,6 +829,16 @@ public final class InlineGiphyCommentPreview {
             context.startActivity(intent);
         } catch (Throwable throwable) {
             Log.w(LOG_TAG, "openExternally failed", throwable);
+        }
+    }
+
+    private static String hostFromUrl(String url) {
+        if (url == null || url.length() == 0) return null;
+
+        try {
+            return Uri.parse(url).getHost();
+        } catch (Throwable ignored) {
+            return null;
         }
     }
 
