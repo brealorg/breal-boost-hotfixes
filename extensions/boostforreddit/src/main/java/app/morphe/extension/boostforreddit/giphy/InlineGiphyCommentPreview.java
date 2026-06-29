@@ -38,6 +38,8 @@ public final class InlineGiphyCommentPreview {
             "morphe_boost_inline_media_preview_alignment";
     private static final String PREF_DIRECT_REDDIT_GIF_TAP_ACTION =
             "morphe_boost_direct_reddit_gif_tap_action";
+    private static final String COMMENT_DIRECT_GIF_ROUTE_MARKER =
+            "morphe_boost_comment_direct_reddit_gif_route";
     private static final String PREF_GIPHY_PREVIEW_TAP_ACTION =
             "morphe_boost_giphy_preview_tap_action";
     private static final String PREF_STATIC_PREVIEW_TAP_ACTION =
@@ -696,7 +698,7 @@ public final class InlineGiphyCommentPreview {
 
             if (directIRedditGif && !forceVideoViewerForDirectGif
                     && openStaticImageViaBoost(activity, submissionClass, submission, true)) {
-                Log.d(LOG_TAG, "open direct i.redd.it gif via Boost image viewer: " + url);
+                Log.d(LOG_TAG, COMMENT_DIRECT_GIF_ROUTE_MARKER + ": open direct i.redd.it gif via Boost image viewer: " + url);
                 return true;
             }
 
@@ -736,7 +738,10 @@ public final class InlineGiphyCommentPreview {
         // Forced image routes must avoid MediaImageActivity. That activity can reclassify
         // inline comment media through its async metadata path and bounce GIF/static URLs
         // into MediaVideoActivity. Legacy ImageActivity is the stricter image-only viewer.
-        if (openLegacyImageActivityViaBoost(activity, submission, !directRedditGif)) {
+        if (openLegacyImageActivityViaBoost(activity, submission, true)) {
+            if (directRedditGif) {
+                Log.d(LOG_TAG, COMMENT_DIRECT_GIF_ROUTE_MARKER + ": forced direct i.redd.it gif to comment image route");
+            }
             return true;
         }
 
