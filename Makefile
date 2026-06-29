@@ -49,3 +49,14 @@ verify-remote:
 > @test -n "$(VERSION)" || (echo "Usage: make verify-remote VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
 > @test -n "$(TAG)" || (echo "Usage: make verify-remote VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
 > ./scripts/verify-remote-release.sh "$(VERSION)" "$(TAG)"
+
+update-readme-sha:
+> @test -n "$(VERSION)" || (echo "Usage: make update-readme-sha VERSION=1.4.22"; exit 1)
+> ./scripts/update-readme-sha.py --version "$(VERSION)" $(EXTRA_SHA_ARGS)
+
+release-local-final:
+> @test -n "$(VERSION)" || (echo "Usage: make release-local-final VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
+> @test -n "$(TAG)" || (echo "Usage: make release-local-final VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
+> $(MAKE) release-build VERSION="$(VERSION)"
+> $(MAKE) update-readme-sha VERSION="$(VERSION)" EXTRA_SHA_ARGS="$(EXTRA_SHA_ARGS)"
+> $(MAKE) release-gate VERSION="$(VERSION)" TAG="$(TAG)" EXTRA_GATE_ARGS="$(EXTRA_GATE_ARGS)"
