@@ -34,7 +34,7 @@ private fun Element.setOrAppendItem(document: Document, itemName: String, itemVa
 val fixCommentsLemmyModelUiPatch = resourcePatch(
     name = "Fix Boost comments Lemmy-style toolbar UI",
     description = "Removes the duplicate native comments title by disabling the SlidrTheme window title/actionbar layer while preserving Boost's selected light/dark theme, toolbar title, and dynamic sort subtitle.",
-    default = false
+    default = true
 ) {
     compatibleWith(*BoostCompatible)
 
