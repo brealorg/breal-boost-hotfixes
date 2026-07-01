@@ -34,12 +34,12 @@ Do not use the normal GitHub project page as the Morphe source. The GitHub proje
 
 | Field | Value |
 |---|---|
-| Version | `1.4.40` |
-| Release tag | `morphe-patches-40` |
-| Asset | `patches-1.4.40.mpp` |
-| SHA256 | `91a993277d3f2be487f453597257893cdff8f97d91e2dc5919db0ad016228fc0` |
+| Version | `1.4.41` |
+| Release tag | `morphe-patches-41` |
+| Asset | `patches-1.4.41.mpp` |
+| SHA256 | `5844fea46e784e5d7c3430e58768ae794bed91a93774592ea1e857436dab51db` |
 | Manager JSON | `https://raw.githubusercontent.com/brealorg/breal-morphe-patches/main/patches-bundle.json` |
-| Download URL | `https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-40/patches-1.4.40.mpp` |
+| Download URL | `https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-41/patches-1.4.41.mpp` |
 
 ## What this bundle does
 
@@ -49,7 +49,9 @@ The current bundle is focused on practical hotfixes for tested app versions, esp
 
 Tested against Boost for Reddit `1.12.12` / versionCode `210011212`.
 
-Included in `1.4.40`:
+Included in `1.4.41`:
+
+1.4.41 is a hotfix for the normal Morphe Manager/default-flow path: the Comments UI fix is now enabled by default, so the duplicate native `Comments` title row is removed without requiring users to manually select that patch.
 
 - **Comments UI**
   - Removes the duplicate native `Comments` title row.
@@ -110,16 +112,16 @@ Compatibility with other app versions is not guaranteed.
 
 ## Verification
 
-Release `1.4.40` was published and verified with:
+Release `1.4.41` was published and verified with:
 
-- Release tag `morphe-patches-40` pointing to the 1.4.40 release commit.
+- Release tag `morphe-patches-41` pointing to the 1.4.41 release commit.
 - GitHub release asset SHA256 matching the local built MPP.
-- Raw `patches-bundle.json` returning version `1.4.40`.
-- Raw `patches-bundle.json` pointing to the `morphe-patches-40` asset.
+- Raw `patches-bundle.json` returning version `1.4.41`.
+- Raw `patches-bundle.json` pointing to the `morphe-patches-41` asset.
 - Downloaded release asset SHA256 matching:
 
 ```text
-91a993277d3f2be487f453597257893cdff8f97d91e2dc5919db0ad016228fc0
+5844fea46e784e5d7c3430e58768ae794bed91a93774592ea1e857436dab51db
 ```
 
 ## Development notes
@@ -128,9 +130,9 @@ This repository contains experimental and release-candidate work in local/work b
 
 ### Deferred work
 
-16K / WL04R builder and runtime work is intentionally **not included** in `1.4.40`.
+16K / WL04R builder and runtime work is intentionally **not included** in `1.4.41`.
 
-That work is preserved separately for a later `1.4.41` scope.
+That work is preserved separately for a later scope.
 
 ## Attribution and license
 
